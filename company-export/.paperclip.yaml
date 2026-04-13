@@ -1,5 +1,15 @@
 schema: "paperclip/v1"
 agents:
+  billy-pham:
+    role: "general"
+    adapter:
+      config:
+        dangerouslySkipPermissions: true
+      type: "claude_local"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+        maxConcurrentRuns: 1
   ceo:
     role: "ceo"
     adapter:
@@ -12,26 +22,40 @@ agents:
         maxConcurrentRuns: 1
     permissions:
       canCreateAgents: true
-  cmo:
-    role: "cmo"
+  hannah-soto:
+    role: "general"
     adapter:
+      config:
+        dangerouslySkipPermissions: true
       type: "claude_local"
-  cto:
-    role: "cto"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+        maxConcurrentRuns: 1
+  hiep-nguyen:
+    role: "general"
     adapter:
+      config:
+        dangerouslySkipPermissions: true
       type: "claude_local"
-  head-of-data:
-    role: "researcher"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+        maxConcurrentRuns: 1
+  paolo-la-rosa:
+    role: "general"
     adapter:
+      config:
+        dangerouslySkipPermissions: true
       type: "claude_local"
-  head-of-product:
-    role: "pm"
-    adapter:
-      type: "claude_local"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+        maxConcurrentRuns: 1
 sidebar:
   agents:
     - "ceo"
-    - "cmo"
-    - "cto"
-    - "head-of-product"
-    - "head-of-data"
+    - "billy-pham"
+    - "hannah-soto"
+    - "hiep-nguyen"
+    - "paolo-la-rosa"

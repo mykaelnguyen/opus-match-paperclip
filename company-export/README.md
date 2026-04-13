@@ -15,11 +15,11 @@
 
 | Agent | Role | Reports To |
 |-------|------|------------|
+| Billy Pham | general | ceo |
 | CEO | CEO | — |
-| CMO | CMO | ceo |
-| CTO | CTO | ceo |
-| Head of Data | researcher | cto |
-| Head of Product | pm | ceo |
+| Hannah Soto | general | ceo |
+| Hiep Nguyen | general | ceo |
+| Paolo La Rosa | general | ceo |
 
 ### Skills
 

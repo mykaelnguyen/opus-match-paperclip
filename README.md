@@ -1,96 +1,142 @@
 # Opus Match AI — Paperclip Configuration
 
-This repository contains the [Paperclip](https://github.com/paperclipai/paperclip) AI orchestration configuration for **Opus Match AI**, the AI-powered talent marketplace for enterprise healthcare staffing.
+This repository contains the [Paperclip](https://github.com/paperclipai/paperclip) AI orchestration configuration for **Opus Match AI** (MyLong IO, Inc.), the AI-powered talent marketplace for enterprise healthcare staffing.
 
-## Overview
-
-Paperclip is an open-source AI company orchestration platform that allows you to run a virtual AI company with agents organized in a hierarchy, each with defined roles, responsibilities, and LLM adapters.
+---
 
 ## Org Structure
 
 ```
 CEO (Chief Executive Officer)
-├── CTO (Chief Technology Officer)
-│   └── Head of Data (Head of Data & AI)
-├── CMO (Chief Marketing Officer)
-└── Head of Product (Head of Product)
+├── Billy Pham (Chief Technology Officer)
+│   └── Hiep Nguyen (Engineering Manager)
+├── Paolo La Rosa (Client Lead)
+└── Hannah Soto (Executive Assistant & Billing)
 ```
 
-| Agent | Role | Adapter | Reports To |
-|---|---|---|---|
-| CEO | Chief Executive Officer | Claude (local) | — |
-| CTO | Chief Technology Officer | Claude (local) | CEO |
-| CMO | Chief Marketing Officer | Claude (local) | CEO |
-| Head of Product | Head of Product | Claude (local) | CEO |
-| Head of Data | Head of Data & AI | Claude (local) | CTO |
+| Agent | Title | Reports To |
+|---|---|---|
+| CEO | Chief Executive Officer | — (Board) |
+| Billy Pham | Chief Technology Officer | CEO |
+| Hiep Nguyen | Engineering Manager | Billy Pham |
+| Paolo La Rosa | Client Lead | CEO |
+| Hannah Soto | Executive Assistant & Billing | CEO |
 
-## Setup
+---
+
+## Deploying to Railway (Permanent Hosting)
 
 ### Prerequisites
 
-- Node.js 18+
-- `npx` (bundled with Node.js)
-- An LLM adapter (Claude Code, Codex, Gemini CLI, etc.)
+- [Railway account](https://railway.app) (free tier works)
+- [Railway CLI](https://docs.railway.app/develop/cli): `npm install -g @railway/cli`
 
-### Quick Start
+### Step 1 — Create a Railway Project
 
 ```bash
-# Install and run Paperclip
-npx paperclipai run
-
-# Or run the onboarding wizard for first-time setup
-npx paperclipai onboard
+railway login
+railway init
+# Select "Empty Project" when prompted
 ```
 
-### Importing the Opus Match Company
+### Step 2 — Add a Persistent Volume
 
-After starting Paperclip, import the company configuration:
+In the Railway dashboard:
+1. Go to your service → **Volumes**
+2. Add a volume mounted at `/data/paperclip`
 
-1. Open the Paperclip UI at `http://localhost:3100`
-2. Navigate to **Org → Import company**
-3. Upload the file from `config/opus-match-company-export.json`
+### Step 3 — Set Environment Variables
 
-### Configuration
+In Railway dashboard → **Variables**, add:
 
-The `config/paperclip-config.json` file contains the server configuration template. Key settings:
-
-- **deploymentMode**: `authenticated` (requires login for all access)
-- **exposure**: `public` (accessible from external URLs)
-- **database**: Embedded PostgreSQL (no external DB required for local dev)
-- **storage**: Local disk (upgrade to S3 for production)
-
-### Environment Variables
-
-Create a `.env` file in your Paperclip instance directory with:
-
-```env
-BETTER_AUTH_SECRET=<your-secret-key>
+```
+BETTER_AUTH_SECRET=<run: openssl rand -base64 32>
+PAPERCLIP_URL=https://<your-railway-domain>.railway.app
+PAPERCLIP_AUTH_MODE=public
+PORT=3100
 ```
 
-Generate a secret with: `openssl rand -base64 32`
+### Step 4 — Deploy
 
-## Agent Prompts
+```bash
+railway up
+```
 
-Agent prompt templates are stored in `agents/` for version control and review:
+### Step 5 — Import Opus Match Company Config
 
-- `agents/ceo.md` — CEO prompt template
-- `agents/cto.md` — CTO prompt template
-- `agents/cmo.md` — CMO prompt template
-- `agents/head-of-product.md` — Head of Product prompt template
-- `agents/head-of-data.md` — Head of Data & AI prompt template
+After the first deployment, run:
 
-## Production Deployment
+```bash
+PAPERCLIP_URL=https://<your-railway-domain>.railway.app bash scripts/setup-railway.sh
+```
 
-For production, we recommend:
+Then visit your Railway URL, find the `board-claim` URL in the Railway logs, and claim admin ownership.
 
-1. **Railway** — Docker container with persistent storage, supports long-running agent heartbeats
-2. **AWS ECS** — For teams already on AWS infrastructure
-3. **Self-hosted VPS** — Full control with Docker Compose
+---
 
-> **Note:** Vercel is not recommended for Paperclip due to serverless function timeout limits that interrupt agent heartbeats.
+## Local Development
+
+```bash
+# Install Paperclip
+npm install -g paperclipai
+
+# Start Paperclip
+paperclipai run
+
+# Import company config (first time only)
+paperclipai company import ./company-export
+```
+
+---
+
+## Connecting Claude
+
+Each agent uses the `claude_local` adapter. To activate:
+
+1. Go to any agent → **Configuration** tab
+2. Set your Anthropic API key in the environment variables
+3. Click **Run Heartbeat** to test
+
+---
+
+## Repository Structure
+
+```
+.
+├── Dockerfile              # Railway/Docker deployment
+├── railway.toml            # Railway deployment config
+├── railway.env.example     # Environment variable template
+├── README.md               # This file
+├── agents/                 # Agent prompt templates (reference)
+│   ├── ceo.md
+│   ├── billy-pham.md
+│   ├── hiep-nguyen.md
+│   ├── paolo-la-rosa.md
+│   └── hannah-soto.md
+├── company-export/         # Paperclip CLI export (importable)
+│   ├── .paperclip.yaml
+│   ├── COMPANY.md
+│   ├── README.md
+│   ├── agents/
+│   └── images/
+└── scripts/
+    └── setup-railway.sh    # Post-deployment setup script
+```
+
+---
+
+## Active Clients
+
+Host Healthcare · GHR Healthcare · HAN Staff · Concentric Healthcare · WWHS · CrossMed · Focus Staff (Elite365) · Pioneer Healthcare · Recovered Health
+
+---
 
 ## Resources
 
 - [Paperclip GitHub](https://github.com/paperclipai/paperclip)
 - [Paperclip Docs](https://paperclip.ing/docs)
 - [Opus Match AI](https://opusmatch.ai)
+
+---
+
+*Maintained by Michael Nguyen (CEO, Opus Match AI)*
