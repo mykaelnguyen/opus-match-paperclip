@@ -1,0 +1,37 @@
+schema: "paperclip/v1"
+agents:
+  ceo:
+    role: "ceo"
+    adapter:
+      config:
+        dangerouslySkipPermissions: true
+      type: "claude_local"
+    runtime:
+      heartbeat:
+        intervalSec: 300
+        maxConcurrentRuns: 1
+    permissions:
+      canCreateAgents: true
+  cmo:
+    role: "cmo"
+    adapter:
+      type: "claude_local"
+  cto:
+    role: "cto"
+    adapter:
+      type: "claude_local"
+  head-of-data:
+    role: "researcher"
+    adapter:
+      type: "claude_local"
+  head-of-product:
+    role: "pm"
+    adapter:
+      type: "claude_local"
+sidebar:
+  agents:
+    - "ceo"
+    - "cmo"
+    - "cto"
+    - "head-of-product"
+    - "head-of-data"

@@ -1,0 +1,58 @@
+{
+  "$meta": {
+    "version": 1,
+    "updatedAt": "2026-04-13T14:35:22.257Z",
+    "source": "onboard"
+  },
+  "database": {
+    "mode": "embedded-postgres",
+    "embeddedPostgresDataDir": "/home/ubuntu/.paperclip/instances/default/db",
+    "embeddedPostgresPort": 54329,
+    "backup": {
+      "enabled": true,
+      "intervalMinutes": 60,
+      "retentionDays": 30,
+      "dir": "/home/ubuntu/.paperclip/instances/default/data/backups"
+    }
+  },
+  "logging": {
+    "mode": "file",
+    "logDir": "/home/ubuntu/.paperclip/instances/default/logs"
+  },
+  "server": {
+    "deploymentMode": "authenticated",
+    "exposure": "public",
+    "host": "0.0.0.0",
+    "port": 3100,
+    "publicUrl": "https://3100-isb8clgpaasru167wbp4k-05f2c5d3.us1.manus.computer",
+    "allowedHostnames": ["3100-isb8clgpaasru167wbp4k-05f2c5d3.us1.manus.computer"],
+    "serveUi": true
+  },
+  "auth": {
+    "baseUrlMode": "explicit",
+    "publicBaseUrl": "https://3100-isb8clgpaasru167wbp4k-05f2c5d3.us1.manus.computer",
+    "disableSignUp": false
+  },
+  "telemetry": {
+    "enabled": true
+  },
+  "storage": {
+    "provider": "local_disk",
+    "localDisk": {
+      "baseDir": "/home/ubuntu/.paperclip/instances/default/data/storage"
+    },
+    "s3": {
+      "bucket": "paperclip",
+      "region": "us-east-1",
+      "prefix": "",
+      "forcePathStyle": false
+    }
+  },
+  "secrets": {
+    "provider": "local_encrypted",
+    "strictMode": false,
+    "localEncrypted": {
+      "keyFilePath": "/home/ubuntu/.paperclip/instances/default/secrets/master.key"
+    }
+  }
+}
