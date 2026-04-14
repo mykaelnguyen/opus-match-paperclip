@@ -7,28 +7,34 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Set working directory
 WORKDIR /app
 
 # Install Paperclip globally
 RUN npm install -g paperclipai
 
-# Create all data directories
-RUN mkdir -p /data/paperclip/db \
-    /data/paperclip/logs \
-    /data/paperclip/backups \
-    /data/paperclip/storage \
-    /data/paperclip/secrets
+# Create the full Paperclip home directory structure
+ENV PAPERCLIP_HOME=/root/.paperclip
+RUN mkdir -p $PAPERCLIP_HOME/instances/default/db \
+    $PAPERCLIP_HOME/instances/default/logs \
+    $PAPERCLIP_HOME/instances/default/data/backups \
+    $PAPERCLIP_HOME/instances/default/data/storage \
+    $PAPERCLIP_HOME/instances/default/secrets \
+    $PAPERCLIP_HOME/instances/default/telemetry
 
-# Copy config.json to the path Paperclip expects
-COPY config.json /data/paperclip/config.json
+# Copy all app files
+COPY . /app/
 
-# Also copy to the default Paperclip home location
-RUN mkdir -p /root/.paperclip/instances/default && \
-    cp /data/paperclip/config.json /root/.paperclip/instances/default/config.json
+# Copy config to the default Paperclip location
+RUN cp /app/config.json $PAPERCLIP_HOME/instances/default/config.json
 
-# Expose port
+# Create .env with secrets (will be overridden by Railway env vars at runtime)
+RUN echo "PAPERCLIP_AGENT_JWT_SECRET=$(openssl rand -hex 32)" > $PAPERCLIP_HOME/instances/default/.env && \
+    echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)" >> $PAPERCLIP_HOME/instances/default/.env
+
+# Create telemetry state
+RUN echo '{"installId":"'$(cat /proc/sys/kernel/random/uuid)'","salt":"'$(openssl rand -hex 32)'","createdAt":"2026-04-14T00:00:00.000Z","firstSeenVersion":"2026.403.0"}' > $PAPERCLIP_HOME/instances/default/telemetry/state.json
+
 EXPOSE 3100
 
-# Run Paperclip with explicit config path
-CMD ["paperclipai", "run", "--config", "/data/paperclip/config.json"]
+# Run paperclipai without --config flag so it uses the default home path
+CMD ["paperclipai", "run"]

@@ -6,18 +6,18 @@
   },
   "database": {
     "mode": "embedded-postgres",
-    "embeddedPostgresDataDir": "/data/paperclip/db",
+    "embeddedPostgresDataDir": "/root/.paperclip/instances/default/db",
     "embeddedPostgresPort": 54329,
     "backup": {
       "enabled": true,
       "intervalMinutes": 60,
       "retentionDays": 30,
-      "dir": "/data/paperclip/backups"
+      "dir": "/root/.paperclip/instances/default/data/backups"
     }
   },
   "logging": {
     "mode": "file",
-    "logDir": "/data/paperclip/logs"
+    "logDir": "/root/.paperclip/instances/default/logs"
   },
   "server": {
     "deploymentMode": "authenticated",
@@ -39,14 +39,14 @@
   "storage": {
     "provider": "local_disk",
     "localDisk": {
-      "baseDir": "/data/paperclip/storage"
+      "baseDir": "/root/.paperclip/instances/default/data/storage"
     }
   },
   "secrets": {
     "provider": "local_encrypted",
     "strictMode": false,
     "localEncrypted": {
-      "keyFilePath": "/data/paperclip/secrets/master.key"
+      "keyFilePath": "/root/.paperclip/instances/default/secrets/master.key"
     }
   }
 }
