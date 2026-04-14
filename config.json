@@ -8,6 +8,7 @@
     "mode": "embedded-postgres",
     "embeddedPostgresDataDir": "/data/paperclip/db",
     "embeddedPostgresPort": 54329,
+    "createPostgresUser": true,
     "backup": {
       "enabled": true,
       "intervalMinutes": 60,
