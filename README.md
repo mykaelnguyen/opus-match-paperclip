@@ -1,124 +1,77 @@
-# Opus Match AI — Paperclip Configuration
+# Opus Match AI — Paperclip Deployment
 
-This repository contains the [Paperclip](https://github.com/paperclipai/paperclip) AI orchestration configuration for **Opus Match AI** (MyLong IO, Inc.), the AI-powered talent marketplace for enterprise healthcare staffing.
+AI-powered talent marketplace for enterprise healthcare staffing, orchestrated by [Paperclip](https://github.com/paperclipai/paperclip).
 
-**Live Instance:** [https://paperclip-production-b301.up.railway.app](https://paperclip-production-b301.up.railway.app)
+## Live Instance
 
----
+**URL**: https://paperclip-production-b301.up.railway.app
 
-## Org Structure
+## Architecture
+
+This deployment uses **Claude Max subscription** (not API billing) via the `claude_local` adapter. The Claude CLI is installed in the Docker image and must be authenticated with your Claude Max subscription on the Railway container.
+
+### Agent Configuration (Best Practices Applied)
+
+Each agent is configured with a three-file architecture based on production-tested patterns from the Paperclip community:
+
+| File | Purpose |
+|---|---|
+| `AGENTS.md` | Identity, team roster, context, and file-reading instructions |
+| `SOUL.md` | Strict boundaries, anti-patterns, and escalation triggers |
+| `HEARTBEAT.md` | Numbered wake-cycle checklist with mandatory self-check |
+
+### Org Chart
 
 ```
-CEO (Chief Executive Officer)
-├── Billy Pham (Chief Technology Officer)
+CEO (Michael Nguyen)
+├── Billy Pham (CTO)
 │   └── Hiep Nguyen (Engineering Manager)
 ├── Paolo La Rosa (Client Lead)
-└── Hannah Soto (Executive Assistant & Billing)
+└── Hannah Soto (EA/Billing)
 ```
 
-| Agent | Title | Reports To |
-|---|---|---|
-| CEO | Chief Executive Officer | — (Board) |
-| Billy Pham | Chief Technology Officer | CEO |
-| Hiep Nguyen | Engineering Manager | Billy Pham |
-| Paolo La Rosa | Client Lead | CEO |
-| Hannah Soto | Executive Assistant & Billing | CEO |
+### Company-Level Files
 
----
+| File | Purpose |
+|---|---|
+| `COMPANY.md` | Company identity and values |
+| `PROJECT-INVENTORY.md` | Source of truth for what exists (prevents duplicate work) |
 
-## Deployment Architecture
+## Claude Max Setup
 
-The Paperclip instance is deployed on **Railway** using a Docker-based approach. A key technical detail: the Dockerfile replaces the `paperclipai` binary with a wrapper script (`scripts/start.sh`) that generates `config.json` at runtime using Railway environment variables (including `RAILWAY_PUBLIC_DOMAIN`), then calls the real binary. This was necessary because Railway auto-detects and runs the `paperclipai` binary directly, ignoring `CMD`/`ENTRYPOINT` overrides.
+After Railway deploys, you must authenticate the Claude CLI on the container:
 
-### Redeploying
+1. Open the Railway dashboard
+2. Navigate to the Paperclip service
+3. Open the **Shell** tab (or use `railway shell`)
+4. Run: `claude login`
+5. Follow the prompts to authenticate with your Claude Max subscription
+6. Verify: `claude --version`
 
-If you need to redeploy from scratch:
+**Important**: Do NOT set `ANTHROPIC_API_KEY` in the agent environment variables. This forces the adapter to use your subscription instead of API billing.
 
-1. Create a new Railway project and service from this GitHub repo
-2. Add a persistent volume mounted at `/data/paperclip`
-3. Set environment variables (see `railway.env.example`)
-4. Railway will auto-build and deploy from the Dockerfile
+## Environment Variables (Railway)
 
-### Environment Variables
-
-In Railway dashboard → **Variables**, ensure these are set:
-
-```
-BETTER_AUTH_SECRET=<run: openssl rand -base64 32>
-PAPERCLIP_URL=https://<your-railway-domain>.railway.app
-PAPERCLIP_AUTH_MODE=public
-PORT=3100
-```
-
----
-
-## Connecting Claude (Required for Agent Heartbeats)
-
-Each agent uses the `claude_local` adapter. The Railway server does not have the `claude` CLI installed natively — agents require a Claude API key to function. To activate:
-
-1. Go to any agent → **Configuration** tab
-2. Add an environment variable: `ANTHROPIC_API_KEY` = your Anthropic API key
-3. Click **Run Heartbeat** to test
-
----
-
-## Local Development
-
-```bash
-# Install Paperclip
-npm install -g paperclipai
-
-# Start Paperclip
-paperclipai run
-
-# Import company config (first time only)
-paperclipai company import ./company-export
-```
-
----
+| Variable | Value |
+|---|---|
+| `NODE_ENV` | `production` |
+| `PORT` | `3100` |
 
 ## Repository Structure
 
 ```
-.
-├── Dockerfile              # Railway/Docker deployment
-├── railway.toml            # Railway deployment config
-├── railway.env.example     # Environment variable template
-├── README.md               # This file
-├── agents/                 # Agent prompt templates (reference)
-│   ├── ceo.md
-│   ├── billy-pham.md
-│   ├── hiep-nguyen.md
-│   ├── paolo-la-rosa.md
-│   └── hannah-soto.md
-├── company-export/         # Paperclip CLI export (importable)
-│   ├── .paperclip.yaml
-│   ├── COMPANY.md
-│   ├── README.md
-│   ├── agents/
-│   └── images/
-├── config/                 # Config templates
-├── scripts/
-│   ├── start.sh            # Wrapper script (replaces paperclipai binary)
-│   ├── paperclipai-wrapper.sh
-│   └── setup-railway.sh    # Post-deployment setup script
-└── config.json             # Generated config reference
+├── Dockerfile                    # Docker build with Paperclip + Claude CLI
+├── company-export/               # Importable Paperclip company package
+│   ├── .paperclip.yaml           # Agent adapter and heartbeat config
+│   ├── COMPANY.md                # Company identity
+│   ├── PROJECT-INVENTORY.md      # Source of truth for what exists
+│   └── agents/                   # Per-agent configuration files
+│       ├── ceo/                  # AGENTS.md, SOUL.md, HEARTBEAT.md
+│       ├── billy-pham/           # AGENTS.md, SOUL.md, HEARTBEAT.md
+│       ├── hiep-nguyen/          # AGENTS.md, SOUL.md, HEARTBEAT.md
+│       ├── paolo-la-rosa/        # AGENTS.md, SOUL.md, HEARTBEAT.md
+│       └── hannah-soto/          # AGENTS.md, SOUL.md, HEARTBEAT.md
+├── config/                       # Paperclip server configuration
+├── scripts/                      # Startup and setup scripts
+└── agents/                       # Agent prompt template reference docs
 ```
-
----
-
-## Active Clients
-
-Serenity Senior Living · Juniper Communities · Sage Oak Assisted Living · Maplewood Health · Riverbend Care · Crestview Living · Harmony Health Services · Oakdale Senior Care · Sunrise Wellness Group · Pinnacle Home Health
-
----
-
-## Resources
-
-- [Paperclip GitHub](https://github.com/paperclipai/paperclip)
-- [Paperclip Docs](https://paperclip.ing/docs)
-- [Opus Match AI](https://opusmatch.ai)
-
----
-
-*Maintained by Michael Nguyen (CEO, Opus Match AI)*

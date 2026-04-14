@@ -7,13 +7,16 @@ WORKDIR /app
 # Install Paperclip globally
 RUN npm install -g paperclipai
 
+# Install Claude CLI (required for Claude Max subscription billing)
+RUN npm install -g @anthropic-ai/claude-code
+
 # Find and rename the real paperclipai binary, then install our wrapper
 RUN REAL_BIN=$(which paperclipai) && \
     mv "$REAL_BIN" "${REAL_BIN}-real" && \
     echo "Real binary moved to: ${REAL_BIN}-real"
 
 # Cache bust
-ARG CACHEBUST=8
+ARG CACHEBUST=9
 COPY . /app/
 
 # Install wrapper as the paperclipai command

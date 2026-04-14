@@ -18,7 +18,7 @@ agents:
       type: "claude_local"
     runtime:
       heartbeat:
-        intervalSec: 300
+        intervalSec: 600
         maxConcurrentRuns: 1
     permissions:
       canCreateAgents: true
