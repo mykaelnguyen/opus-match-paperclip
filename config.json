@@ -25,13 +25,13 @@
     "exposure": "public",
     "host": "0.0.0.0",
     "port": 3100,
-    "publicUrl": "https://paperclip-production-51d0.up.railway.app",
-    "allowedHostnames": ["paperclip-production-51d0.up.railway.app"],
+    "publicUrl": "https://paperclip-production-5778.up.railway.app",
+    "allowedHostnames": ["paperclip-production-5778.up.railway.app"],
     "serveUi": true
   },
   "auth": {
     "baseUrlMode": "explicit",
-    "publicBaseUrl": "https://paperclip-production-51d0.up.railway.app",
+    "publicBaseUrl": "https://paperclip-production-5778.up.railway.app",
     "disableSignUp": false
   },
   "telemetry": {

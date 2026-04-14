@@ -8,7 +8,7 @@ WORKDIR /app
 RUN npm install -g paperclipai
 
 # Cache bust to ensure latest files are always copied
-ARG CACHEBUST=4
+ARG CACHEBUST=5
 COPY . /app/
 
 # Create a non-root user for Paperclip (Postgres refuses to run as root)
