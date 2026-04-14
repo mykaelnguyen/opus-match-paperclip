@@ -8,36 +8,22 @@ WORKDIR /app
 RUN npm install -g paperclipai
 
 # Cache bust to ensure latest files are always copied
-ARG CACHEBUST=5
+ARG CACHEBUST=6
 COPY . /app/
 
 # Create a non-root user for Paperclip (Postgres refuses to run as root)
 RUN groupadd -r paperclip && useradd -r -g paperclip -m -d /home/paperclip paperclip
 
-# Create the /data/paperclip directory structure
-RUN mkdir -p /data/paperclip/db \
-    /data/paperclip/logs \
-    /data/paperclip/data/backups \
-    /data/paperclip/data/storage \
-    /data/paperclip/secrets \
-    /data/paperclip/telemetry
+# Create the /data/paperclip directory and give ownership to paperclip user
+RUN mkdir -p /data/paperclip && chown -R paperclip:paperclip /data/paperclip /app /home/paperclip
 
-# Copy config to /data/paperclip/
-RUN cp /app/config.json /data/paperclip/config.json
-
-# Create .env with secrets
-RUN echo "PAPERCLIP_AGENT_JWT_SECRET=$(openssl rand -hex 32)" > /data/paperclip/.env && \
-    echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)" >> /data/paperclip/.env
-
-# Create telemetry state
-RUN echo '{"installId":"'$(cat /proc/sys/kernel/random/uuid)'","salt":"'$(openssl rand -hex 32)'","createdAt":"2026-04-14T00:00:00.000Z","firstSeenVersion":"2026.403.0"}' > /data/paperclip/telemetry/state.json
-
-# Set ownership of all data dirs to the paperclip user
-RUN chown -R paperclip:paperclip /data/paperclip /app /home/paperclip
+# Make start script executable
+RUN chmod +x /app/scripts/start.sh
 
 # Switch to non-root user
 USER paperclip
 
 EXPOSE 3100
 
-CMD ["paperclipai", "run"]
+# Use start.sh which generates config at runtime with correct domain
+CMD ["/bin/bash", "/app/scripts/start.sh"]
