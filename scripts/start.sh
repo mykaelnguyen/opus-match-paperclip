@@ -1,22 +1,33 @@
 #!/bin/bash
 set -e
 
-CONFIG_PATH="/data/paperclip/config.json"
+echo "=== Paperclip Railway Startup ==="
+echo "Date: $(date)"
+
 PORT="${PORT:-3100}"
 PAPERCLIP_URL="${PAPERCLIP_URL:-http://localhost:$PORT}"
-
-# Extract hostname from PAPERCLIP_URL
 HOSTNAME=$(echo "$PAPERCLIP_URL" | sed 's|https\?://||' | sed 's|/.*||')
 
-echo "=== Paperclip Railway Startup ==="
+# Paperclip expects config at ~/.paperclip/instances/default/config.json
+PAPERCLIP_HOME="/root/.paperclip"
+INSTANCE_DIR="$PAPERCLIP_HOME/instances/default"
+CONFIG_PATH="$INSTANCE_DIR/config.json"
+
 echo "Port: $PORT"
 echo "URL: $PAPERCLIP_URL"
 echo "Hostname: $HOSTNAME"
+echo "Config path: $CONFIG_PATH"
 
-# Generate config.json if it doesn't exist
-if [ ! -f "$CONFIG_PATH" ]; then
-  echo "Generating config.json..."
-  cat > "$CONFIG_PATH" <<EOF
+# Create all required directories
+mkdir -p "$INSTANCE_DIR/db"
+mkdir -p "$INSTANCE_DIR/logs"
+mkdir -p "$INSTANCE_DIR/data/backups"
+mkdir -p "$INSTANCE_DIR/data/storage"
+mkdir -p "$INSTANCE_DIR/secrets"
+
+# Always generate fresh config
+echo "Generating config.json..."
+cat > "$CONFIG_PATH" <<EOF
 {
   "\$meta": {
     "version": 1,
@@ -25,18 +36,18 @@ if [ ! -f "$CONFIG_PATH" ]; then
   },
   "database": {
     "mode": "embedded-postgres",
-    "embeddedPostgresDataDir": "/data/paperclip/db",
+    "embeddedPostgresDataDir": "$INSTANCE_DIR/db",
     "embeddedPostgresPort": 54329,
     "backup": {
       "enabled": true,
       "intervalMinutes": 60,
       "retentionDays": 30,
-      "dir": "/data/paperclip/backups"
+      "dir": "$INSTANCE_DIR/data/backups"
     }
   },
   "logging": {
     "mode": "file",
-    "logDir": "/data/paperclip/logs"
+    "logDir": "$INSTANCE_DIR/logs"
   },
   "server": {
     "deploymentMode": "authenticated",
@@ -58,22 +69,21 @@ if [ ! -f "$CONFIG_PATH" ]; then
   "storage": {
     "provider": "local_disk",
     "localDisk": {
-      "baseDir": "/data/paperclip/storage"
+      "baseDir": "$INSTANCE_DIR/data/storage"
     }
   },
   "secrets": {
     "provider": "local_encrypted",
     "strictMode": false,
     "localEncrypted": {
-      "keyFilePath": "/data/paperclip/secrets/master.key"
+      "keyFilePath": "$INSTANCE_DIR/secrets/master.key"
     }
   }
 }
 EOF
-  echo "Config generated at $CONFIG_PATH"
-else
-  echo "Using existing config at $CONFIG_PATH"
-fi
 
+echo "Config written:"
+cat "$CONFIG_PATH"
+echo ""
 echo "Starting Paperclip..."
-exec paperclipai run --config "$CONFIG_PATH"
+exec paperclipai run
