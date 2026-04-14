@@ -1,0 +1,52 @@
+{
+  "$meta": {
+    "version": 1,
+    "updatedAt": "2026-04-14T00:00:00.000Z",
+    "source": "railway"
+  },
+  "database": {
+    "mode": "embedded-postgres",
+    "embeddedPostgresDataDir": "/data/paperclip/db",
+    "embeddedPostgresPort": 54329,
+    "backup": {
+      "enabled": true,
+      "intervalMinutes": 60,
+      "retentionDays": 30,
+      "dir": "/data/paperclip/backups"
+    }
+  },
+  "logging": {
+    "mode": "file",
+    "logDir": "/data/paperclip/logs"
+  },
+  "server": {
+    "deploymentMode": "authenticated",
+    "exposure": "public",
+    "host": "0.0.0.0",
+    "port": 3100,
+    "publicUrl": "https://paperclip-production-60b1.up.railway.app",
+    "allowedHostnames": ["paperclip-production-60b1.up.railway.app"],
+    "serveUi": true
+  },
+  "auth": {
+    "baseUrlMode": "explicit",
+    "publicBaseUrl": "https://paperclip-production-60b1.up.railway.app",
+    "disableSignUp": false
+  },
+  "telemetry": {
+    "enabled": true
+  },
+  "storage": {
+    "provider": "local_disk",
+    "localDisk": {
+      "baseDir": "/data/paperclip/storage"
+    }
+  },
+  "secrets": {
+    "provider": "local_encrypted",
+    "strictMode": false,
+    "localEncrypted": {
+      "keyFilePath": "/data/paperclip/secrets/master.key"
+    }
+  }
+}

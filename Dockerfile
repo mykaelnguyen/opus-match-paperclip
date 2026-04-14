@@ -13,21 +13,22 @@ WORKDIR /app
 # Install Paperclip globally
 RUN npm install -g paperclipai
 
-# Create data directories for persistent storage
+# Create all data directories
 RUN mkdir -p /data/paperclip/db \
     /data/paperclip/logs \
     /data/paperclip/backups \
     /data/paperclip/storage \
     /data/paperclip/secrets
 
-# Copy all files including scripts
-COPY . /app/
+# Copy config.json to the path Paperclip expects
+COPY config.json /data/paperclip/config.json
 
-# Make startup script executable
-RUN chmod +x /app/scripts/start.sh
+# Also copy to the default Paperclip home location
+RUN mkdir -p /root/.paperclip/instances/default && \
+    cp /data/paperclip/config.json /root/.paperclip/instances/default/config.json
 
 # Expose port
 EXPOSE 3100
 
-# Use shell form CMD so Railway doesn't override it
-CMD bash /app/scripts/start.sh
+# Run Paperclip with explicit config path
+CMD ["paperclipai", "run", "--config", "/data/paperclip/config.json"]
