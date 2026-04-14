@@ -29,5 +29,5 @@ RUN chmod +x /app/scripts/start.sh
 # Expose port
 EXPOSE 3100
 
-# Use the startup script that generates config.json
-ENTRYPOINT ["/bin/bash", "/app/scripts/start.sh"]
+# Use shell form CMD so Railway doesn't override it
+CMD bash /app/scripts/start.sh
