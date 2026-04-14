@@ -8,7 +8,7 @@ WORKDIR /app
 RUN npm install -g paperclipai
 
 # Cache bust to ensure latest files are always copied
-ARG CACHEBUST=6
+ARG CACHEBUST=7
 COPY . /app/
 
 # Create a non-root user for Paperclip (Postgres refuses to run as root)
@@ -25,5 +25,5 @@ USER paperclip
 
 EXPOSE 3100
 
-# Use start.sh which generates config at runtime with correct domain
-CMD ["/bin/bash", "/app/scripts/start.sh"]
+# Use ENTRYPOINT (not CMD) — Railway overrides CMD but not ENTRYPOINT
+ENTRYPOINT ["/bin/bash", "/app/scripts/start.sh"]
