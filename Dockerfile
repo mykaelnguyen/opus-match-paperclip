@@ -20,12 +20,14 @@ RUN mkdir -p /data/paperclip/db \
     /data/paperclip/storage \
     /data/paperclip/secrets
 
-# Copy startup script
-COPY scripts/start.sh /app/start.sh
-RUN chmod +x /app/start.sh
+# Copy all files including scripts
+COPY . /app/
+
+# Make startup script executable
+RUN chmod +x /app/scripts/start.sh
 
 # Expose port
 EXPOSE 3100
 
-# Start Paperclip via startup script
-CMD ["/app/start.sh"]
+# Use the startup script that generates config.json
+ENTRYPOINT ["/bin/bash", "/app/scripts/start.sh"]
