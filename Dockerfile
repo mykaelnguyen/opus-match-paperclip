@@ -7,7 +7,8 @@ WORKDIR /app
 # Install Paperclip globally
 RUN npm install -g paperclipai
 
-# Copy all app files
+# Cache bust to ensure latest files are always copied
+ARG CACHEBUST=3
 COPY . /app/
 
 # Create the /data/paperclip directory structure where Railway Paperclip expects config
@@ -20,6 +21,9 @@ RUN mkdir -p /data/paperclip/db \
 
 # Copy config to /data/paperclip/ where Paperclip on Railway looks for it
 RUN cp /app/config.json /data/paperclip/config.json
+
+# Verify config has createPostgresUser
+RUN cat /data/paperclip/config.json | grep -q "createPostgresUser" && echo "Config verified: createPostgresUser present" || (echo "ERROR: createPostgresUser missing!" && exit 1)
 
 # Create .env with secrets next to config.json
 RUN echo "PAPERCLIP_AGENT_JWT_SECRET=$(openssl rand -hex 32)" > /data/paperclip/.env && \
