@@ -8,10 +8,13 @@ WORKDIR /app
 RUN npm install -g paperclipai
 
 # Cache bust to ensure latest files are always copied
-ARG CACHEBUST=3
+ARG CACHEBUST=4
 COPY . /app/
 
-# Create the /data/paperclip directory structure where Railway Paperclip expects config
+# Create a non-root user for Paperclip (Postgres refuses to run as root)
+RUN groupadd -r paperclip && useradd -r -g paperclip -m -d /home/paperclip paperclip
+
+# Create the /data/paperclip directory structure
 RUN mkdir -p /data/paperclip/db \
     /data/paperclip/logs \
     /data/paperclip/data/backups \
@@ -19,18 +22,21 @@ RUN mkdir -p /data/paperclip/db \
     /data/paperclip/secrets \
     /data/paperclip/telemetry
 
-# Copy config to /data/paperclip/ where Paperclip on Railway looks for it
+# Copy config to /data/paperclip/
 RUN cp /app/config.json /data/paperclip/config.json
 
-# Verify config has createPostgresUser
-RUN cat /data/paperclip/config.json | grep -q "createPostgresUser" && echo "Config verified: createPostgresUser present" || (echo "ERROR: createPostgresUser missing!" && exit 1)
-
-# Create .env with secrets next to config.json
+# Create .env with secrets
 RUN echo "PAPERCLIP_AGENT_JWT_SECRET=$(openssl rand -hex 32)" > /data/paperclip/.env && \
     echo "BETTER_AUTH_SECRET=$(openssl rand -base64 32)" >> /data/paperclip/.env
 
 # Create telemetry state
 RUN echo '{"installId":"'$(cat /proc/sys/kernel/random/uuid)'","salt":"'$(openssl rand -hex 32)'","createdAt":"2026-04-14T00:00:00.000Z","firstSeenVersion":"2026.403.0"}' > /data/paperclip/telemetry/state.json
+
+# Set ownership of all data dirs to the paperclip user
+RUN chown -R paperclip:paperclip /data/paperclip /app /home/paperclip
+
+# Switch to non-root user
+USER paperclip
 
 EXPOSE 3100
 
